@@ -1,7 +1,7 @@
 import argparse
 import random
 
-# some comment here
+
 class Character(object):
 
   def __init__(self, name, health, damage):
