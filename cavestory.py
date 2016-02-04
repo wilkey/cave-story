@@ -1,5 +1,5 @@
 import argparse
-import random
+from random import choice
 
 
 class Character(object):
@@ -11,7 +11,6 @@ class Character(object):
     self.health_bonus = 0
     self.attack_bonus = 0
     self.damage_taken = 0
-
 
   def attack_opponent(self, opponent):
     opponent.take_damage(self.effective_attack())
@@ -26,28 +25,26 @@ class Character(object):
   	return self.attack + self.attack_bonus
 
 
-
-
-monsters = {}
-
-monsters[1] = [{'mob': 'Bat', 'health': 18, 'dmg': 5},
-				 {'mob': 'Snake', 'health': 26, 'dmg': 7},
-				 {'mob': 'Eye', 'health': 35, 'dmg': 9}]
-monsters[2] = [{'mob': 'Horse', 'health': 40, 'dmg': 11},
-				 {'mob': 'Caterpillar', 'health': 8, 'dmg': 2},
-				 {'mob': 'Crawler', 'health': 22, 'dmg': 4}]
-monsters[3] = [{'mob': 'Damselfly', 'health': 26, 'dmg': 5},
-				 {'mob': 'Rat', 'health': 13, 'dmg': 1},
-				 {'mob': 'Snipper', 'health': 38, 'dmg': 10}]
+monster_table = [{'name': 'Bat', 'health': 18, 'attack': 5, 'location': 1},
+				 {'name': 'Snake', 'health': 26, 'attack': 7, 'location': 1},
+				 {'name': 'Eye', 'health': 35, 'attack': 9, 'location': 1},
+				 {'name': 'Horse', 'health': 40, 'attack': 11, 'location': 2},
+				 {'name': 'Caterpillar', 'health': 8, 'attack': 2, 'location': 2},
+				 {'name': 'Crawler', 'health': 22, 'attack': 4, 'location': 2},
+				 {'name': 'Damselfly', 'health': 26, 'attack': 5, 'location': 3},
+				 {'name': 'Rat', 'health': 13, 'attack': 1, 'location': 3},
+				 {'name': 'Snipper', 'health': 38, 'attack': 10, 'location': 3}]
 
 
 player = Character("John", 20, 6)
 
-def choice():
+
+def choose():
 	print "****Choose a cave****\n"
 	print " Cave Entrance[1]"
 	print " Cave Entrance[2]"
 	print " Cave Entrance[3]"
+
 
 def fight(mob):
 	print "You engage the %s !!" % mob.name
@@ -70,65 +67,58 @@ def fight(mob):
 	main()		
 
 
-
-def fight_run(mob):	
-	print "%s's health is %s and attack is %s" % (mob.name, mob.health, mob.attack) 
+def fight_run(monster):	
+	print "%s's health is %s and attack is %s" % (monster.name, monster.health, monster.attack) 
 	print "Your health is %s and attack is %s" % (player.effective_health(), player.effective_attack())
 	choice = raw_input("What do you choose? ")
 	if choice in ['r', 'run']:
 		main()
 	elif choice in ['f', 'fight']:
-		fight(mob)
+		fight(monster)
 	else:
 		print "Invalid choice; choose 'fight' or 'run' "
-		fight_run(mob)
+		fight_run(monster)
 
 
-def cave1():
-	random_number = random.randint(0, 2)
-	mob = Character(monsters[1][random_number]['mob'], monsters[1][random_number]['health'], monsters[1][random_number]['dmg'])
-	print "A wild %s has appeared!!" % mob.name
-	print "[F]ight or [R]un?"
-	fight_run(mob)
+class Monster(Character):
 
+	def __init__(self, index):
+		monster = monster_table[index]
+		super(Monster, self).__init__(monster['name'], monster['health'], monster['attack'])
 
-def cave2():
-	random_number = random.randint(0, 2)
-	mob = Character(monsters[2][random_number]['mob'], monsters[2][random_number]['health'], monsters[2][random_number]['dmg'])
-	print "A wild %s has appeared!!" % mob.name
-	print "[F]ight or [R]un?"
-	fight_run(mob)
-
-
-def cave3():
-	random_number = random.randint(0, 2)
-	mob = Character(monsters[3][random_number]['mob'], monsters[3][random_number]['health'], monsters[3][random_number]['dmg'])
-	print "A wild %s has appeared!!" % mob.name
-	print "Fight or Run?"
-	fight_run(mob)
-
+	def approach_player(self):
+		print "A wild %s has appeared!!" % self.name
+		print "[F]ight or [R]un?"
+		fight_run(self)
 
 
 def cavepick(cave):
-	if cave == '1':
-		cave1()	
-	elif cave == '2':
-		cave2()	
-	elif cave == '3':
-		cave3()	
+	print type(cave)
+	if cave in [1, 2, 3]:
+		picks = {1: range(0, 3),
+				 2: range(3, 6),
+				 3: range(6, 9)}	
+		monster = Monster(choice(picks[cave]))
+		monster.approach_player()
 	else:
 		print "Invalid Cave; Choose 1, 2, or 3."
 		main()
-
 
 
 def main():
 	if player.effective_health() >= 45:
 		print "You're AN HERO!"
 		exit(0)
-	choice()
+	choose()
 	chosen_cave = raw_input("What entrance do you choose? ")
+	
 	print "you chose '%s'" % chosen_cave
+	
+	try:
+		chosen_cave = int(chosen_cave)
+	except Exception as err:
+		print err
+
 	cavepick(chosen_cave)
 
 
